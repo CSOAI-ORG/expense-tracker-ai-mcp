@@ -36,11 +36,11 @@ async def handle_list_tools() -> list[Tool]:
 async def handle_call_tool(name: str, arguments: Any | None) -> list[types.TextContent | types.ImageContent | types.EmbeddedResource]:
     args = arguments or {}
     if name == "add_expense":
-            _store.setdefault("expenses", []).append({"amount": args["amount"], "category": args["category"], "date": datetime.now().isoformat()})
-            return [TextContent(type="text", text=json.dumps({"status": "added"}, indent=2))]
-        if name == "get_summary":
-            total = sum(e["amount"] for e in _store.get("expenses", []))
-            return [TextContent(type="text", text=json.dumps({"total": total, "count": len(_store.get("expenses", []))}, indent=2))]
+        _store.setdefault("expenses", []).append({"amount": args["amount"], "category": args["category"], "date": datetime.now().isoformat()})
+        return [TextContent(type="text", text=json.dumps({"status": "added"}, indent=2))]
+    if name == "get_summary":
+        total = sum(e["amount"] for e in _store.get("expenses", []))
+        return [TextContent(type="text", text=json.dumps({"total": total, "count": len(_store.get("expenses", []))}, indent=2))]
     return [TextContent(type="text", text=json.dumps({"error": "Unknown tool"}, indent=2))]
 
 async def main():

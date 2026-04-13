@@ -1,0 +1,21 @@
+{
+  "name": "expense-tracker-ai-mcp",
+  "description": "MEOK AI Labs \u2014 Expense Tracker tools for AI agents and LLMs",
+  "vendor": "MEOK AI Labs",
+  "homepage": "https://meok.ai",
+  "repository": "https://github.com/CSOAI-ORG/expense-tracker-ai-mcp",
+  "runtime": "python",
+  "entrypoint": "server.py",
+  "tools": [
+    "add_expense",
+    "get_summary"
+  ],
+  "categories": [
+    "Finance",
+    "Personal Finance"
+  ],
+  "pricing": {
+    "free": "50 calls/day",
+    "pro": "$9/mo"
+  }
+}

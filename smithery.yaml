@@ -1,0 +1,10 @@
+name: expense-tracker-ai-mcp
+description: "MEOK AI Labs — Expense Tracker tools for AI agents and LLMs"
+vendor: MEOK AI Labs
+homepage: https://meok.ai
+repository: https://github.com/CSOAI-ORG/expense-tracker-ai-mcp
+license: MIT
+categories: [Finance, Personal Finance]
+tags: [expense-tracking, receipt-management, financial-tracking, budget-tracking]
+runtime: python
+entrypoint: server.py

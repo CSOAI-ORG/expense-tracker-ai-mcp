@@ -1,6 +1,6 @@
 {
   "name": "expense-tracker-ai-mcp",
-  "description": "> **By [MEOK AI Labs](https://meok.ai)** \u2014 Track expenses, categorize spending, and generate reports.",
+  "description": "MCP server for expense tracker ai. Features add expense, get expenses, set budget. From MEOK AI Labs.",
   "version": "1.0.0",
   "tools": [
     {

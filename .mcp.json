@@ -1,6 +1,70 @@
 {
   "name": "expense-tracker-ai-mcp",
-  "description": "> **By [MEOK AI Labs](https://meok.ai)** \u2014 Sovereign AI tools for everyone.",
+  "description": "> **By [MEOK AI Labs](https://meok.ai)** \u2014 MEOK AI Labs MCP Server",
   "version": "1.0.0",
-  "tools": []
+  "tools": [
+    {
+      "name": "add_expense",
+      "description": "Add new expense",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "name": "get_expenses",
+      "description": "Get expenses with filters",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "name": "set_budget",
+      "description": "Set monthly budget",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "name": "get_budget_status",
+      "description": "Get budget status",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "name": "get_category_summary",
+      "description": "Get spending by category",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "name": "get_monthly_summary",
+      "description": "Get monthly summary",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "name": "delete_expense",
+      "description": "Delete expense",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  ]
 }

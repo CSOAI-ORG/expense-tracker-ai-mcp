@@ -1,4 +1,25 @@
 name: expense-tracker-ai-mcp
 description: MEOK AI Labs MCP Server
 version: 1.0.0
-tools: []
+tools:
+- name: add_expense
+  description: Add new expense
+  parameters: []
+- name: get_expenses
+  description: Get expenses with filters
+  parameters: []
+- name: set_budget
+  description: Set monthly budget
+  parameters: []
+- name: get_budget_status
+  description: Get budget status
+  parameters: []
+- name: get_category_summary
+  description: Get spending by category
+  parameters: []
+- name: get_monthly_summary
+  description: Get monthly summary
+  parameters: []
+- name: delete_expense
+  description: Delete expense
+  parameters: []

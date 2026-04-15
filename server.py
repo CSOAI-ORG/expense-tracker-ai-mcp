@@ -1,20 +1,15 @@
 #!/usr/bin/env python3
 """MEOK AI Labs — expense-tracker-ai-mcp MCP Server. Track expenses, categorize spending, and generate reports."""
 
-import asyncio
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 import uuid
 import sys, os
 
 sys.path.insert(0, os.path.expanduser("~/clawd/meok-labs-engine/shared"))
 from auth_middleware import check_access
-from mcp.server.models import InitializationOptions
-from mcp.server import NotificationOptions, Server
-from mcp.server.stdio import stdio_server
-from mcp.types import Resource, Tool, TextContent
-import mcp.types as types
+from mcp.server.fastmcp import FastMCP
 from collections import defaultdict
 
 FREE_DAILY_LIMIT = 15
@@ -40,278 +35,158 @@ _store = {
     ],
     "budgets": {},
 }
-server = Server("expense-tracker-ai")
+mcp = FastMCP("expense-tracker-ai", instructions="Track expenses, categorize spending, and generate reports.")
 
 
 def create_id():
     return str(uuid.uuid4())[:8]
 
 
-@server.list_resources()
-async def handle_list_resources():
-    return [
-        Resource(uri="expenses://all", name="All Expenses", mimeType="application/json")
-    ]
-
-
-@server.list_tools()
-async def handle_list_tools():
-    return [
-        Tool(
-            name="add_expense",
-            description="Add new expense",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "amount": {"type": "number"},
-                    "category": {"type": "string"},
-                    "description": {"type": "string"},
-                    "date": {"type": "string"},
-                    "vendor": {"type": "string"},
-                },
-            },
-        ),
-        Tool(
-            name="get_expenses",
-            description="Get expenses with filters",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "start_date": {"type": "string"},
-                    "end_date": {"type": "string"},
-                    "category": {"type": "string"},
-                    "limit": {"type": "number"},
-                },
-            },
-        ),
-        Tool(
-            name="set_budget",
-            description="Set monthly budget",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "category": {"type": "string"},
-                    "amount": {"type": "number"},
-                    "month": {"type": "string"},
-                },
-            },
-        ),
-        Tool(
-            name="get_budget_status",
-            description="Get budget status",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "category": {"type": "string"},
-                    "month": {"type": "string"},
-                },
-            },
-        ),
-        Tool(
-            name="get_category_summary",
-            description="Get spending by category",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "start_date": {"type": "string"},
-                    "end_date": {"type": "string"},
-                },
-            },
-        ),
-        Tool(
-            name="get_monthly_summary",
-            description="Get monthly summary",
-            inputSchema={"type": "object", "properties": {"month": {"type": "string"}}},
-        ),
-        Tool(
-            name="delete_expense",
-            description="Delete expense",
-            inputSchema={
-                "type": "object",
-                "properties": {"expense_id": {"type": "string"}},
-            },
-        ),
-    ]
-
-
-@server.call_tool()
-async def handle_call_tool(name: str, arguments: Any = None) -> list[types.TextContent]:
-    args = arguments or {}
-    api_key = args.get("api_key", "")
+@mcp.tool()
+def add_expense(amount: float, category: str = "Other", description: str = "", date: str = "", vendor: str = "", api_key: str = "") -> str:
+    """Add new expense"""
     allowed, msg, tier = check_access(api_key)
     if not allowed:
-        return [
-            TextContent(
-                type="text",
-                text=json.dumps(
-                    {"error": msg, "upgrade_url": "https://meok.ai/pricing"}
-                ),
-            )
-        ]
+        return json.dumps({"error": msg, "upgrade_url": "https://meok.ai/pricing"})
+    if err := _rl(): return err
 
-    if name == "add_expense":
-        expense = {
-            "id": create_id(),
-            "amount": args["amount"],
-            "category": args.get("category", "Other"),
-            "description": args.get("description", ""),
-            "date": args.get("date", datetime.now().strftime("%Y-%m-%d")),
-            "vendor": args.get("vendor", ""),
-            "created_at": datetime.now().isoformat(),
-        }
-        _store["expenses"].append(expense)
-        return [
-            TextContent(
-                type="text",
-                text=json.dumps(
-                    {
-                        "added": True,
-                        "expense_id": expense["id"],
-                        "amount": expense["amount"],
-                    },
-                    indent=2,
-                ),
-            )
-        ]
-
-    elif name == "get_expenses":
-        start = args.get("start_date")
-        end = args.get("end_date")
-        category = args.get("category")
-        limit = args.get("limit", 50)
-
-        results = _store["expenses"]
-        if start:
-            results = [e for e in results if e.get("date", "") >= start]
-        if end:
-            results = [e for e in results if e.get("date", "") <= end]
-        if category:
-            results = [e for e in results if e.get("category") == category]
-
-        return [
-            TextContent(
-                type="text",
-                text=json.dumps({"expenses": results[-limit:], "count": len(results)}),
-            )
-        ]
-
-    elif name == "set_budget":
-        category = args.get("category", "Other")
-        month = args.get("month", datetime.now().strftime("%Y-%m"))
-        budget = {
-            "category": category,
-            "amount": args["amount"],
-            "month": month,
-            "set_at": datetime.now().isoformat(),
-        }
-        _store["budgets"][f"{category}:{month}"] = budget
-        return [
-            TextContent(
-                type="text",
-                text=json.dumps(
-                    {"set": True, "category": category, "budget": args["amount"]}
-                ),
-            )
-        ]
-
-    elif name == "get_budget_status":
-        category = args.get("category", "Other")
-        month = args.get("month", datetime.now().strftime("%Y-%m"))
-
-        budget_key = f"{category}:{month}"
-        budget = _store["budgets"].get(budget_key, {}).get("amount", 0)
-
-        spent = sum(
-            e["amount"]
-            for e in _store["expenses"]
-            if e.get("category") == category and e.get("date", "").startswith(month)
-        )
-
-        return [
-            TextContent(
-                type="text",
-                text=json.dumps(
-                    {
-                        "category": category,
-                        "budget": budget,
-                        "spent": spent,
-                        "remaining": budget - spent,
-                        "percent_used": round((spent / budget) * 100, 1)
-                        if budget > 0
-                        else 0,
-                    }
-                ),
-            )
-        ]
-
-    elif name == "get_category_summary":
-        start = args.get("start_date")
-        end = args.get("end_date")
-
-        expenses = _store["expenses"]
-        if start:
-            expenses = [e for e in expenses if e.get("date", "") >= start]
-        if end:
-            expenses = [e for e in expenses if e.get("date", "") <= end]
-
-        by_category = {}
-        for e in expenses:
-            cat = e.get("category", "Other")
-            by_category[cat] = by_category.get(cat, 0) + e.get("amount", 0)
-
-        return [
-            TextContent(
-                type="text",
-                text=json.dumps(
-                    {"by_category": by_category, "total": sum(by_category.values())}
-                ),
-            )
-        ]
-
-    elif name == "get_monthly_summary":
-        month = args.get("month", datetime.now().strftime("%Y-%m"))
-
-        expenses = [
-            e for e in _store["expenses"] if e.get("date", "").startswith(month)
-        ]
-
-        total = sum(e.get("amount", 0) for e in expenses)
-
-        return [
-            TextContent(
-                type="text",
-                text=json.dumps(
-                    {"month": month, "total": total, "expense_count": len(expenses)}
-                ),
-            )
-        ]
-
-    elif name == "delete_expense":
-        exp_id = args.get("expense_id")
-        _store["expenses"] = [e for e in _store["expenses"] if e.get("id") != exp_id]
-        return [TextContent(type="text", text=json.dumps({"deleted": True}))]
-
-    return [TextContent(type="text", text=json.dumps({"error": "Unknown tool"}))]
+    expense = {
+        "id": create_id(),
+        "amount": amount,
+        "category": category,
+        "description": description,
+        "date": date or datetime.now().strftime("%Y-%m-%d"),
+        "vendor": vendor,
+        "created_at": datetime.now().isoformat(),
+    }
+    _store["expenses"].append(expense)
+    return json.dumps(
+        {"added": True, "expense_id": expense["id"], "amount": expense["amount"]},
+        indent=2,
+    )
 
 
-async def main():
-    async with stdio_server(server._read_stream, server._write_stream) as (
-        read_stream,
-        write_stream,
-    ):
-        await server.run(
-            read_stream,
-            write_stream,
-            InitializationOptions(
-                server_name="expense-tracker-ai",
-                server_version="0.1.0",
-                capabilities=server.get_capabilities(
-                    notification_options=NotificationOptions(),
-                    experimental_capabilities={},
-                ),
-            ),
-        )
+@mcp.tool()
+def get_expenses(start_date: str = "", end_date: str = "", category: str = "", limit: int = 50, api_key: str = "") -> str:
+    """Get expenses with filters"""
+    allowed, msg, tier = check_access(api_key)
+    if not allowed:
+        return json.dumps({"error": msg, "upgrade_url": "https://meok.ai/pricing"})
+    if err := _rl(): return err
+
+    results = _store["expenses"]
+    if start_date:
+        results = [e for e in results if e.get("date", "") >= start_date]
+    if end_date:
+        results = [e for e in results if e.get("date", "") <= end_date]
+    if category:
+        results = [e for e in results if e.get("category") == category]
+
+    return json.dumps({"expenses": results[-limit:], "count": len(results)})
+
+
+@mcp.tool()
+def set_budget(amount: float, category: str = "Other", month: str = "", api_key: str = "") -> str:
+    """Set monthly budget"""
+    allowed, msg, tier = check_access(api_key)
+    if not allowed:
+        return json.dumps({"error": msg, "upgrade_url": "https://meok.ai/pricing"})
+    if err := _rl(): return err
+
+    if not month:
+        month = datetime.now().strftime("%Y-%m")
+    budget = {
+        "category": category,
+        "amount": amount,
+        "month": month,
+        "set_at": datetime.now().isoformat(),
+    }
+    _store["budgets"][f"{category}:{month}"] = budget
+    return json.dumps({"set": True, "category": category, "budget": amount})
+
+
+@mcp.tool()
+def get_budget_status(category: str = "Other", month: str = "", api_key: str = "") -> str:
+    """Get budget status"""
+    allowed, msg, tier = check_access(api_key)
+    if not allowed:
+        return json.dumps({"error": msg, "upgrade_url": "https://meok.ai/pricing"})
+    if err := _rl(): return err
+
+    if not month:
+        month = datetime.now().strftime("%Y-%m")
+
+    budget_key = f"{category}:{month}"
+    budget = _store["budgets"].get(budget_key, {}).get("amount", 0)
+
+    spent = sum(
+        e["amount"]
+        for e in _store["expenses"]
+        if e.get("category") == category and e.get("date", "").startswith(month)
+    )
+
+    return json.dumps({
+        "category": category,
+        "budget": budget,
+        "spent": spent,
+        "remaining": budget - spent,
+        "percent_used": round((spent / budget) * 100, 1) if budget > 0 else 0,
+    })
+
+
+@mcp.tool()
+def get_category_summary(start_date: str = "", end_date: str = "", api_key: str = "") -> str:
+    """Get spending by category"""
+    allowed, msg, tier = check_access(api_key)
+    if not allowed:
+        return json.dumps({"error": msg, "upgrade_url": "https://meok.ai/pricing"})
+    if err := _rl(): return err
+
+    expenses = _store["expenses"]
+    if start_date:
+        expenses = [e for e in expenses if e.get("date", "") >= start_date]
+    if end_date:
+        expenses = [e for e in expenses if e.get("date", "") <= end_date]
+
+    by_category = {}
+    for e in expenses:
+        cat = e.get("category", "Other")
+        by_category[cat] = by_category.get(cat, 0) + e.get("amount", 0)
+
+    return json.dumps({"by_category": by_category, "total": sum(by_category.values())})
+
+
+@mcp.tool()
+def get_monthly_summary(month: str = "", api_key: str = "") -> str:
+    """Get monthly summary"""
+    allowed, msg, tier = check_access(api_key)
+    if not allowed:
+        return json.dumps({"error": msg, "upgrade_url": "https://meok.ai/pricing"})
+    if err := _rl(): return err
+
+    if not month:
+        month = datetime.now().strftime("%Y-%m")
+
+    expenses = [
+        e for e in _store["expenses"] if e.get("date", "").startswith(month)
+    ]
+
+    total = sum(e.get("amount", 0) for e in expenses)
+
+    return json.dumps({"month": month, "total": total, "expense_count": len(expenses)})
+
+
+@mcp.tool()
+def delete_expense(expense_id: str, api_key: str = "") -> str:
+    """Delete expense"""
+    allowed, msg, tier = check_access(api_key)
+    if not allowed:
+        return json.dumps({"error": msg, "upgrade_url": "https://meok.ai/pricing"})
+    if err := _rl(): return err
+
+    _store["expenses"] = [e for e in _store["expenses"] if e.get("id") != expense_id]
+    return json.dumps({"deleted": True})
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    mcp.run()

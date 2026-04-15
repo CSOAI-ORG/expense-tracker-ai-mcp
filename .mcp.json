@@ -1,6 +1,6 @@
 {
   "name": "expense-tracker-ai-mcp",
-  "description": "> **By [MEOK AI Labs](https://meok.ai)** \u2014 MEOK AI Labs MCP Server",
+  "description": "> **By [MEOK AI Labs](https://meok.ai)** \u2014 Track expenses, categorize spending, and generate reports.",
   "version": "1.0.0",
   "tools": [
     {
@@ -8,8 +8,26 @@
       "description": "Add new expense",
       "parameters": {
         "type": "object",
-        "properties": {},
-        "required": []
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "vendor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount"
+        ]
       }
     },
     {
@@ -17,7 +35,20 @@
       "description": "Get expenses with filters",
       "parameters": {
         "type": "object",
-        "properties": {},
+        "properties": {
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer"
+          }
+        },
         "required": []
       }
     },
@@ -26,8 +57,20 @@
       "description": "Set monthly budget",
       "parameters": {
         "type": "object",
-        "properties": {},
-        "required": []
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "category": {
+            "type": "string"
+          },
+          "month": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount"
+        ]
       }
     },
     {
@@ -35,7 +78,14 @@
       "description": "Get budget status",
       "parameters": {
         "type": "object",
-        "properties": {},
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "month": {
+            "type": "string"
+          }
+        },
         "required": []
       }
     },
@@ -44,7 +94,14 @@
       "description": "Get spending by category",
       "parameters": {
         "type": "object",
-        "properties": {},
+        "properties": {
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          }
+        },
         "required": []
       }
     },
@@ -53,7 +110,11 @@
       "description": "Get monthly summary",
       "parameters": {
         "type": "object",
-        "properties": {},
+        "properties": {
+          "month": {
+            "type": "string"
+          }
+        },
         "required": []
       }
     },
@@ -62,8 +123,14 @@
       "description": "Delete expense",
       "parameters": {
         "type": "object",
-        "properties": {},
-        "required": []
+        "properties": {
+          "expense_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "expense_id"
+        ]
       }
     }
   ]

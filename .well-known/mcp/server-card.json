@@ -1,0 +1,64 @@
+{
+  "name": "expense-tracker-ai",
+  "description": "Track expenses, categorize spending, and generate reports.",
+  "version": "1.0.0",
+  "protocol_version": "2025-11-25",
+  "publisher": {
+    "name": "MEOK AI Labs",
+    "url": "https://meok.ai",
+    "email": "nicholas@meok.ai"
+  },
+  "repository": "https://github.com/CSOAI-ORG/expense-tracker-ai-mcp",
+  "license": "MIT",
+  "transport": [
+    "stdio",
+    "streamable-http"
+  ],
+  "authentication": {
+    "type": "api-key",
+    "free_tier": true,
+    "free_limit": "15 calls/day"
+  },
+  "tools": [
+    {
+      "name": "add_expense",
+      "description": "Add new expense"
+    },
+    {
+      "name": "get_expenses",
+      "description": "Get expenses with filters"
+    },
+    {
+      "name": "set_budget",
+      "description": "Set monthly budget"
+    },
+    {
+      "name": "get_budget_status",
+      "description": "Get budget status"
+    },
+    {
+      "name": "get_category_summary",
+      "description": "Get spending by category"
+    },
+    {
+      "name": "get_monthly_summary",
+      "description": "Get monthly summary"
+    },
+    {
+      "name": "delete_expense",
+      "description": "Delete expense"
+    }
+  ],
+  "categories": [
+    "AI & Machine Learning"
+  ],
+  "pricing": {
+    "free": {
+      "calls_per_day": 15
+    },
+    "pro": {
+      "price": "$29/month",
+      "url": "https://meok.ai/pricing"
+    }
+  }
+}

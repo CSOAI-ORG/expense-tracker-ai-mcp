@@ -9,8 +9,11 @@ import sys, os
 
 sys.path.insert(0, os.path.expanduser("~/clawd/meok-labs-engine/shared"))
 from auth_middleware import check_access
+from persistence import ServerStore
 from mcp.server.fastmcp import FastMCP
 from collections import defaultdict
+
+_db = ServerStore("expense-tracker-ai")
 
 FREE_DAILY_LIMIT = 15
 _usage = defaultdict(list)
@@ -20,21 +23,9 @@ def _rl(c="anon"):
     if len(_usage[c]) >= FREE_DAILY_LIMIT: return json.dumps({"error": f"Limit {FREE_DAILY_LIMIT}/day"})
     _usage[c].append(now); return None
 
-
-_store = {
-    "expenses": [],
-    "categories": [
-        "Food",
-        "Transport",
-        "Office",
-        "Software",
-        "Marketing",
-        "Travel",
-        "Utilities",
-        "Other",
-    ],
-    "budgets": {},
-}
+# Seed default categories if not present
+if not _db.get("categories"):
+    _db.set("categories", ["Food", "Transport", "Office", "Software", "Marketing", "Travel", "Utilities", "Other"])
 mcp = FastMCP("expense-tracker-ai", instructions="Track expenses, categorize spending, and generate reports.")
 
 
@@ -59,7 +50,8 @@ def add_expense(amount: float, category: str = "Other", description: str = "", d
         "vendor": vendor,
         "created_at": datetime.now().isoformat(),
     }
-    _store["expenses"].append(expense)
+    _db.append("expenses", expense)
+    _db.hset("expenses_by_id", expense["id"], expense)
     return json.dumps(
         {"added": True, "expense_id": expense["id"], "amount": expense["amount"]},
         indent=2,
@@ -74,7 +66,7 @@ def get_expenses(start_date: str = "", end_date: str = "", category: str = "", l
         return json.dumps({"error": msg, "upgrade_url": "https://meok.ai/pricing"})
     if err := _rl(): return err
 
-    results = _store["expenses"]
+    results = _db.list("expenses")
     if start_date:
         results = [e for e in results if e.get("date", "") >= start_date]
     if end_date:
@@ -101,7 +93,7 @@ def set_budget(amount: float, category: str = "Other", month: str = "", api_key:
         "month": month,
         "set_at": datetime.now().isoformat(),
     }
-    _store["budgets"][f"{category}:{month}"] = budget
+    _db.hset("budgets", f"{category}:{month}", budget)
     return json.dumps({"set": True, "category": category, "budget": amount})
 
 
@@ -117,11 +109,12 @@ def get_budget_status(category: str = "Other", month: str = "", api_key: str = "
         month = datetime.now().strftime("%Y-%m")
 
     budget_key = f"{category}:{month}"
-    budget = _store["budgets"].get(budget_key, {}).get("amount", 0)
+    budget_data = _db.hget("budgets", budget_key)
+    budget = budget_data.get("amount", 0) if budget_data else 0
 
     spent = sum(
         e["amount"]
-        for e in _store["expenses"]
+        for e in _db.list("expenses")
         if e.get("category") == category and e.get("date", "").startswith(month)
     )
 
@@ -142,7 +135,7 @@ def get_category_summary(start_date: str = "", end_date: str = "", api_key: str 
         return json.dumps({"error": msg, "upgrade_url": "https://meok.ai/pricing"})
     if err := _rl(): return err
 
-    expenses = _store["expenses"]
+    expenses = _db.list("expenses")
     if start_date:
         expenses = [e for e in expenses if e.get("date", "") >= start_date]
     if end_date:
@@ -168,7 +161,7 @@ def get_monthly_summary(month: str = "", api_key: str = "") -> str:
         month = datetime.now().strftime("%Y-%m")
 
     expenses = [
-        e for e in _store["expenses"] if e.get("date", "").startswith(month)
+        e for e in _db.list("expenses") if e.get("date", "").startswith(month)
     ]
 
     total = sum(e.get("amount", 0) for e in expenses)
@@ -184,7 +177,11 @@ def delete_expense(expense_id: str, api_key: str = "") -> str:
         return json.dumps({"error": msg, "upgrade_url": "https://meok.ai/pricing"})
     if err := _rl(): return err
 
-    _store["expenses"] = [e for e in _store["expenses"] if e.get("id") != expense_id]
+    remaining = [e for e in _db.list("expenses") if e.get("id") != expense_id]
+    _db.clear("expenses")
+    for e in remaining:
+        _db.append("expenses", e)
+    _db.hdel("expenses_by_id", expense_id)
     return json.dumps({"deleted": True})
 
 

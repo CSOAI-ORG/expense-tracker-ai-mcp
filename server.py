@@ -51,6 +51,15 @@ def add_expense(amount: float, category: str = "Other", description: str = "", d
     When NOT to use:
         Not suitable for real-time production decision-making without
         human review of results.
+
+    Args:
+        amount (float): The amount to analyze or process.
+        category (str): The category to analyze or process.
+        description (str): The description to analyze or process.
+        date (str): The date to analyze or process.
+        vendor (str): The vendor to analyze or process.
+        api_key (str): The api key to analyze or process.
+
     Behavioral Transparency:
         - Side Effects: This tool is read-only and produces no side effects. It does not modify
           any external state, databases, or files. All output is computed in-memory and returned
@@ -106,6 +115,14 @@ def get_expenses(start_date: str = "", end_date: str = "", category: str = "", l
     When NOT to use:
         Not suitable for real-time production decision-making without
         human review of results.
+
+    Args:
+        start_date (str): The start date to analyze or process.
+        end_date (str): The end date to analyze or process.
+        category (str): The category to analyze or process.
+        limit (int): The limit to analyze or process.
+        api_key (str): The api key to analyze or process.
+
     Behavioral Transparency:
         - Side Effects: This tool is read-only and produces no side effects. It does not modify
           any external state, databases, or files. All output is computed in-memory and returned
@@ -155,6 +172,13 @@ def set_budget(amount: float, category: str = "Other", month: str = "", api_key:
     When NOT to use:
         Not suitable for real-time production decision-making without
         human review of results.
+
+    Args:
+        amount (float): The amount to analyze or process.
+        category (str): The category to analyze or process.
+        month (str): The month to analyze or process.
+        api_key (str): The api key to analyze or process.
+
     Behavioral Transparency:
         - Side Effects: This tool is read-only and produces no side effects. It does not modify
           any external state, databases, or files. All output is computed in-memory and returned
@@ -205,6 +229,12 @@ def get_budget_status(category: str = "Other", month: str = "", api_key: str = "
     When NOT to use:
         Not suitable for real-time production decision-making without
         human review of results.
+
+    Args:
+        category (str): The category to analyze or process.
+        month (str): The month to analyze or process.
+        api_key (str): The api key to analyze or process.
+
     Behavioral Transparency:
         - Side Effects: This tool is read-only and produces no side effects. It does not modify
           any external state, databases, or files. All output is computed in-memory and returned
@@ -265,6 +295,12 @@ def get_category_summary(start_date: str = "", end_date: str = "", api_key: str 
     When NOT to use:
         Not suitable for real-time production decision-making without
         human review of results.
+
+    Args:
+        start_date (str): The start date to analyze or process.
+        end_date (str): The end date to analyze or process.
+        api_key (str): The api key to analyze or process.
+
     Behavioral Transparency:
         - Side Effects: This tool is read-only and produces no side effects. It does not modify
           any external state, databases, or files. All output is computed in-memory and returned
@@ -317,6 +353,11 @@ def get_monthly_summary(month: str = "", api_key: str = "") -> str:
     When NOT to use:
         Not suitable for real-time production decision-making without
         human review of results.
+
+    Args:
+        month (str): The month to analyze or process.
+        api_key (str): The api key to analyze or process.
+
     Behavioral Transparency:
         - Side Effects: This tool is read-only and produces no side effects. It does not modify
           any external state, databases, or files. All output is computed in-memory and returned
@@ -367,6 +408,11 @@ def delete_expense(expense_id: str, api_key: str = "") -> str:
     When NOT to use:
         Not suitable for real-time production decision-making without
         human review of results.
+
+    Args:
+        expense_id (str): The expense id to analyze or process.
+        api_key (str): The api key to analyze or process.
+
     Behavioral Transparency:
         - Side Effects: This tool is read-only and produces no side effects. It does not modify
           any external state, databases, or files. All output is computed in-memory and returned

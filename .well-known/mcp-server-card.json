@@ -1,0 +1,34 @@
+{
+  "name": "expense-tracker-ai-mcp",
+  "title": "Expense Tracker Ai Mcp",
+  "description": "MCP server for expense tracker ai. Features add expense, get expenses, set budget. From MEOK AI Labs.",
+  "version": "1.0.6",
+  "homepage": "https://meok.ai",
+  "license": "MIT",
+  "transport": {
+    "type": "stdio"
+  },
+  "tools": [
+    {
+      "name": "add_expense"
+    },
+    {
+      "name": "get_expenses"
+    },
+    {
+      "name": "set_budget"
+    },
+    {
+      "name": "get_budget_status"
+    },
+    {
+      "name": "get_category_summary"
+    },
+    {
+      "name": "get_monthly_summary"
+    },
+    {
+      "name": "delete_expense"
+    }
+  ]
+}

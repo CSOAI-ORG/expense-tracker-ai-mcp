@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""MEOK AI Labs — expense-tracker-ai-mcp MCP Server. Track expenses, categorize spending, and generate reports."""
+"""
+MEOK AI Labs — expense-tracker-ai-mcp MCP Server. Track expenses, categorize spending, and generate reports."""
 
 import json
 from datetime import datetime, timedelta, timezone
@@ -7,7 +8,6 @@ from typing import Any
 import uuid
 import sys, os
 
-sys.path.insert(0, os.path.expanduser("~/clawd/meok-labs-engine/shared"))
 from auth_middleware import check_access
 from persistence import ServerStore
 from mcp.server.fastmcp import FastMCP
@@ -77,7 +77,7 @@ def add_expense(amount: float, category: str = "Other", description: str = "", d
     """
     allowed, msg, tier = check_access(api_key)
     if not allowed:
-        return json.dumps({"error": msg, "upgrade_url": "https://meok.ai/pricing"})
+        return json.dumps({"error": msg, "upgrade_url": "https://councilof.ai"})
     if err := _rl(): return err
 
     expense = {
@@ -140,7 +140,7 @@ def get_expenses(start_date: str = "", end_date: str = "", category: str = "", l
     """
     allowed, msg, tier = check_access(api_key)
     if not allowed:
-        return json.dumps({"error": msg, "upgrade_url": "https://meok.ai/pricing"})
+        return json.dumps({"error": msg, "upgrade_url": "https://councilof.ai"})
     if err := _rl(): return err
 
     results = _db.list("expenses")
@@ -196,7 +196,7 @@ def set_budget(amount: float, category: str = "Other", month: str = "", api_key:
     """
     allowed, msg, tier = check_access(api_key)
     if not allowed:
-        return json.dumps({"error": msg, "upgrade_url": "https://meok.ai/pricing"})
+        return json.dumps({"error": msg, "upgrade_url": "https://councilof.ai"})
     if err := _rl(): return err
 
     if not month:
@@ -252,7 +252,7 @@ def get_budget_status(category: str = "Other", month: str = "", api_key: str = "
     """
     allowed, msg, tier = check_access(api_key)
     if not allowed:
-        return json.dumps({"error": msg, "upgrade_url": "https://meok.ai/pricing"})
+        return json.dumps({"error": msg, "upgrade_url": "https://councilof.ai"})
     if err := _rl(): return err
 
     if not month:
@@ -318,7 +318,7 @@ def get_category_summary(start_date: str = "", end_date: str = "", api_key: str 
     """
     allowed, msg, tier = check_access(api_key)
     if not allowed:
-        return json.dumps({"error": msg, "upgrade_url": "https://meok.ai/pricing"})
+        return json.dumps({"error": msg, "upgrade_url": "https://councilof.ai"})
     if err := _rl(): return err
 
     expenses = _db.list("expenses")
@@ -375,7 +375,7 @@ def get_monthly_summary(month: str = "", api_key: str = "") -> str:
     """
     allowed, msg, tier = check_access(api_key)
     if not allowed:
-        return json.dumps({"error": msg, "upgrade_url": "https://meok.ai/pricing"})
+        return json.dumps({"error": msg, "upgrade_url": "https://councilof.ai"})
     if err := _rl(): return err
 
     if not month:
@@ -430,7 +430,7 @@ def delete_expense(expense_id: str, api_key: str = "") -> str:
     """
     allowed, msg, tier = check_access(api_key)
     if not allowed:
-        return json.dumps({"error": msg, "upgrade_url": "https://meok.ai/pricing"})
+        return json.dumps({"error": msg, "upgrade_url": "https://councilof.ai"})
     if err := _rl(): return err
 
     remaining = [e for e in _db.list("expenses") if e.get("id") != expense_id]
@@ -441,5 +441,8 @@ def delete_expense(expense_id: str, api_key: str = "") -> str:
     return json.dumps({"deleted": True})
 
 
-if __name__ == "__main__":
+def main():
     mcp.run()
+
+if __name__ == '__main__':
+    main()

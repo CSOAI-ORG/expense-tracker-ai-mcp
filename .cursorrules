@@ -1,0 +1,9 @@
+# expense-tracker-ai-mcp - Auto-trigger Rules
+
+When the user asks about expense tracker, use expense-tracker-ai-mcp tools: add_expense, get_expenses, set_budget, get_budget_status, get_category_summary
+
+**MCP server for expense tracker ai mcp operations**
+
+Install: `pip install expense-tracker-ai-mcp`
+
+By MEOK AI Labs — MIT licensed.

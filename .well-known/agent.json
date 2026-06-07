@@ -1,0 +1,86 @@
+{
+  "name": "expense-tracker-ai-mcp",
+  "description": "Expense Tracker Ai MCP Server by MEOK AI Labs",
+  "url": "https://proofof.ai/scorecard/expense-tracker-ai-mcp.html",
+  "version": "1.0.6",
+  "protocolVersion": "0.2.0",
+  "provider": {
+    "organization": "MEOK AI Labs",
+    "url": "https://meok.ai"
+  },
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false
+  },
+  "defaultInputModes": [
+    "text"
+  ],
+  "defaultOutputModes": [
+    "text"
+  ],
+  "skills": [
+    {
+      "id": "add_expense",
+      "name": "Add Expense",
+      "description": "add_expense via expense-tracker-ai-mcp",
+      "tags": [
+        "mcp",
+        "compliance"
+      ]
+    },
+    {
+      "id": "get_expenses",
+      "name": "Get Expenses",
+      "description": "get_expenses via expense-tracker-ai-mcp",
+      "tags": [
+        "mcp",
+        "compliance"
+      ]
+    },
+    {
+      "id": "set_budget",
+      "name": "Set Budget",
+      "description": "set_budget via expense-tracker-ai-mcp",
+      "tags": [
+        "mcp",
+        "compliance"
+      ]
+    },
+    {
+      "id": "get_budget_status",
+      "name": "Get Budget Status",
+      "description": "get_budget_status via expense-tracker-ai-mcp",
+      "tags": [
+        "mcp",
+        "compliance"
+      ]
+    },
+    {
+      "id": "get_category_summary",
+      "name": "Get Category Summary",
+      "description": "get_category_summary via expense-tracker-ai-mcp",
+      "tags": [
+        "mcp",
+        "compliance"
+      ]
+    },
+    {
+      "id": "get_monthly_summary",
+      "name": "Get Monthly Summary",
+      "description": "get_monthly_summary via expense-tracker-ai-mcp",
+      "tags": [
+        "mcp",
+        "compliance"
+      ]
+    },
+    {
+      "id": "delete_expense",
+      "name": "Delete Expense",
+      "description": "delete_expense via expense-tracker-ai-mcp",
+      "tags": [
+        "mcp",
+        "compliance"
+      ]
+    }
+  ]
+}

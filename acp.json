@@ -1,0 +1,25 @@
+{
+  "acpVersion": "0.1",
+  "agent": {
+    "name": "expense-tracker-ai-mcp",
+    "description": "Expense Tracker Ai MCP Server by MEOK AI Labs",
+    "version": "1.0.6",
+    "provider": "MEOK AI Labs",
+    "interfaces": [
+      {
+        "type": "mcp",
+        "transport": "stdio",
+        "package": "expense-tracker-ai-mcp"
+      }
+    ],
+    "capabilities": [
+      "add_expense",
+      "get_expenses",
+      "set_budget",
+      "get_budget_status",
+      "get_category_summary",
+      "get_monthly_summary",
+      "delete_expense"
+    ]
+  }
+}
